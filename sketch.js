@@ -1,26 +1,39 @@
 let serial;          // variable to hold an instance of the serialport library
 let portName = '/dev/tty.usbmodem142201';
+
 let brushSize;
 let anchors;
-
 let anchorsSwitch = [false, false, false];
 
+let canvas;
 let video;
 let poseNet;
 let poses = [];
+
+// save the strokes position and color here
 let strokes = [];
 
+// sounds
 let loopSound;
 let harp = [];
+let xylophone = [];
+
+// some html
+let element;
 
 function preload() {
   loopSound = loadSound('looperman.wav');
 
   for (let i = 1; i <= 10; i++) {
     let path = '/harp/' + i + '.wav';
-    // console.log(path);
     let harpsound = loadSound(path);
     harp.push(harpsound)
+  }
+
+  for (let i = 1; i <= 9; i++) {
+    let path = '/xylophone/' + i + '.wav';
+    let xylosound = loadSound(path);
+    xylophone.push(xylosound)
   }
 }
 
@@ -35,7 +48,7 @@ function setup() {
   serial.list();                      // list the serial ports
   serial.open(portName);              // open a serial port
 
-  createCanvas(640, 480);
+  canvas = createCanvas(640, 480);
   video = createCapture(VIDEO);
   video.size(width, height);
 
@@ -48,6 +61,8 @@ function setup() {
   });
   // Hide the video element, and just show the canvas
   video.hide();
+
+  element = document.getElementsByTagName("canvas");
 }
 
 function modelReady() {
@@ -59,6 +74,8 @@ function mousePressed(){
 }
 
 function draw() {
+  translate(width,0);
+  scale(-1, 1);
   image(video, 0, 0, width, height);
   checkAnchors();
   noStroke();
@@ -70,6 +87,11 @@ function draw() {
 
     // strokes for nose
     if(anchorsSwitch[0] == true) {
+      // UI
+      canvas.removeClass('leftWrist');
+      canvas.removeClass('rightWrist');
+      canvas.addClass('nose');
+
       let nose = pose['nose'];
       strokes.push([nose, brushSize, [nose.x/3, 0, nose.y/2]]);
 
@@ -81,14 +103,34 @@ function draw() {
 
     // strokes for left wrist
     if(anchorsSwitch[1] == true) {
+      // UI
+      canvas.addClass('leftWrist');
+      canvas.removeClass('rightWrist');
+      canvas.removeClass('nose');
+
       let leftWrist = pose['leftWrist'];
       strokes.push([leftWrist, brushSize, [leftWrist.x/3, leftWrist.y/2, 0]]);
+
+      // play the sound
+      let randomizedIndex = Math.floor(Math.random() * Math.floor(8));
+      xylophone[randomizedIndex].setVolume(0.1);
+      xylophone[randomizedIndex].play();
     }
 
     // strokes for right wrist
     if(anchorsSwitch[2] == true) {
+      // UI
+      canvas.removeClass('leftWrist');
+      canvas.addClass('rightWrist');
+      canvas.removeClass('nose');
+
       let rightWrist = pose['rightWrist'];
       strokes.push([rightWrist, brushSize, [rightWrist.x/3, rightWrist.y/2, 0]]);
+
+      // play the sound
+      let randomizedIndex = Math.floor(Math.random() * Math.floor(8));
+      xylophone[randomizedIndex].setVolume(0.1);
+      xylophone[randomizedIndex].play();
     }
 
     for(let i = 0; i < strokes.length; i++) {

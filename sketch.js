@@ -68,19 +68,24 @@ function draw() {
   if (poses.length > 0) {
     let pose = poses[0].pose;
 
+    // strokes for nose
     if(anchorsSwitch[0] == true) {
       let nose = pose['nose'];
       strokes.push([nose, brushSize, [nose.x/3, 0, nose.y/2]]);
 
+      // play the sound
       let randomizedIndex = Math.floor(Math.random() * Math.floor(9));
-      if(!harp[randomizedIndex].isPlaying()) {
-        harp[randomizedIndex].play();
-      }
+      harp[randomizedIndex].setVolume(0.2);
+      harp[randomizedIndex].play();
     }
+
+    // strokes for left wrist
     if(anchorsSwitch[1] == true) {
       let leftWrist = pose['leftWrist'];
       strokes.push([leftWrist, brushSize, [leftWrist.x/3, leftWrist.y/2, 0]]);
     }
+
+    // strokes for right wrist
     if(anchorsSwitch[2] == true) {
       let rightWrist = pose['rightWrist'];
       strokes.push([rightWrist, brushSize, [rightWrist.x/3, rightWrist.y/2, 0]]);
@@ -129,6 +134,6 @@ function checkAnchors() {
 }
 
 function mouseClicked() {
-  setVolume(0.2);
+  loopSound.setVolume(0.2);
   loopSound.loop();
 }
